@@ -1,5 +1,8 @@
 #!/bin/bash
 
+RDS_DB_HOST=$1
+RDS_DB_PASSWD=$2
+
 apt update -y && apt install -y nginx mysql-client-5.7 \
 	php-fpm php-mysql php-curl php-gd php-intl php-mbstring \
 	php-soap php-xml php-xmlrpc php-zip dos2unix
@@ -40,6 +43,9 @@ rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
 systemctl reload nginx
 
+mysql -u wordpress -p${RDS_DB_PASSWD} -h ${RDS_DB_HOST} -D wordpressdb -e "GRANT ALL ON wordpress.* TO 'wordpress'@'${RDS_DB_HOST}' IDENTIFIED BY '${RDS_DB_PASSWD}';"
+mysql -u wordpress -p${RDS_DB_PASSWD} -h ${RDS_DB_HOST} -D wordpressdb -e "FLUSH PRIVILEGES;"
+
 pushd /tmp
 curl -LO https://wordpress.org/latest.tar.gz
 tar xzvf latest.tar.gz
@@ -53,8 +59,8 @@ sed -i '/AUTH_KEY/,/NONCE_SALT/d' wp-config.php
 sed -i 49r<(curl -s https://api.wordpress.org/secret-key/1.1/salt/) wp-config.php
 sed -i "s/database_name_here/wordpressdb/g" wp-config.php
 sed -i "s/username_here/wordpress/g" wp-config.php
-sed -i "s/password_here/${RDS_DB_PASS}/g" wp-config.php
-sed -i "s/localhost/${RDS_DB}/g" wp-config.php
+sed -i "s/password_here/${RDS_DB_PASSWD}/g" wp-config.php
+sed -i "s/localhost/${RDS_DB_HOST}/g" wp-config.php
 sed -i 39r<(echo "define('FS_METHOD', 'direct');") wp-config.php
 dos2unix wp-config.php
 systemctl restart nginx

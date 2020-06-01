@@ -4,8 +4,8 @@ import boto3
 import time
 import os
 
-rds_db_pass = os.getenv("RDS_DB_PASS"),
 rds = boto3.client('rds')
+rds_db_passwd = os.environ.get("RDS_DB_PASSWD")
 
 print("Creating the db subnet group")
 db_subnet = rds.create_db_subnet_group(
@@ -29,12 +29,12 @@ db_instance = rds.create_db_instance(
     DBInstanceClass='db.t2.micro',
     Engine='mysql',
     MasterUsername='wordpress',
-    MasterUserPassword=rds_db_pass,
+    MasterUserPassword=rds_db_passwd,
     VpcSecurityGroupIds=[
         'sg-025ada11b570e67df',
     ],
     DBSubnetGroupName='privatesub',
-    PubliclyAccessible=True,
+    PubliclyAccessible=False,
     MultiAZ=False,
     DeletionProtection=False,
 )
@@ -50,5 +50,6 @@ while db_status != "failed":
         print("Creating database -- this can take a while...")
         time.sleep(60)
 
-print(f"Database Endpoint: {db_info['DBInstances'][0]['Endpoint']['Address']}")
-
+db_host = db_info['DBInstances'][0]['Endpoint']['Address']
+print(f"Database Endpoint: {db_host}")
+os.environ['RDS_DB_HOST'] = db_host
