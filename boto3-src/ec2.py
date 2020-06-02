@@ -5,10 +5,10 @@ import os
 
 rds_db_host = os.environ.get('RDS_DB_HOST')
 rds_db_passwd = os.environ.get('RDS_DB_PASSWD')
-user_data='''#!/bin/bash
+user_data=f'''#!/bin/bash
 pushd /tmp
 git clone https://github.com/tonytheleg/adv-cloud-computing-projects.git
-bash ./adv-cloud-computing-projects/ec2-setup.sh rds_db_host rds_db_passwd
+bash ./adv-cloud-computing-projects/ec2-setup.sh {rds_db_host} {rds_db_passwd}
 '''
 
 ec2 = boto3.resource('ec2')
