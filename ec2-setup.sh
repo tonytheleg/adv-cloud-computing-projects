@@ -9,13 +9,7 @@ export AWS_DEFAULT_REGION=$5
 
 apt update -y && apt install -y nginx mysql-client-5.7 \
 	php-fpm php-mysql php-curl php-gd php-intl php-mbstring \
-	php-soap php-xml php-xmlrpc php-zip dos2unix \
-	unzip certbot python3-certbot-nginx
-
-pushd /tmp
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-./aws/install
+	php-soap php-xml php-xmlrpc php-zip dos2unix 
 
 systemctl enable nginx	
 systemctl restart php7.2-fpm
@@ -45,25 +39,15 @@ server {
         location ~ /\.ht {
                 deny all;
         }
-
-    listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/myawsblog.xyz/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/myawsblog.xyz/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-
 }
 EOF
 
 ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/
 rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
+systemctl start nginx
 systemctl reload nginx
-
-certbot certonly --nginx -d myawsblog.xyz -m anatale@protonmail.com -n --agree-tos
-systemctl reload nginx
-
-aws acm import-certificate --certificate-chain file:///etc/letsencrypt/live/myawsblog.xyz/fullchain.pem --tags Key=Name,Value="myawsblog.xyz"
+systemctl enable nginx
 
 mysql -u wordpress -p${RDS_DB_PASSWD} -h ${RDS_DB_HOST} -D wordpressdb -e "GRANT ALL ON wordpress.* TO 'wordpress'@'${RDS_DB_HOST}' IDENTIFIED BY '${RDS_DB_PASSWD}';"
 mysql -u wordpress -p${RDS_DB_PASSWD} -h ${RDS_DB_HOST} -D wordpressdb -e "FLUSH PRIVILEGES;"
