@@ -15,7 +15,7 @@ server {
         listen 80;
         root /var/www/wordpress;
         index index.php index.html index.htm index.nginx-debian.html;
-        server_name example.com;
+        server_name myawsblog.xyz;
 
         location / {
                 try_files $uri $uri/ /index.php$is_args$args;
@@ -35,8 +35,17 @@ server {
         location ~ /\.ht {
                 deny all;
         }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/myawsblog.xyz/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/myawsblog.xyz/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
 }
 EOF
+
+certbot certonly --nginx -d myawsblog.xyz -m anatale@protonmail.com -n --agree-tos
 
 ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/
 rm /etc/nginx/sites-available/default
