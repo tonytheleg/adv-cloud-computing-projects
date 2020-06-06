@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
-import boto3, time, os, sys
-
 rds = boto3.client('rds')
 rds_db_passwd = os.environ.get("RDS_DB_PASSWD")
 
-def create_db_subnet(name, description, subnet_ids: list)
+def create_db_subnet(client, name, description, subnet_ids: list)
     print("Creating the db subnet group")
-    db_subnet = rds.create_db_subnet_group(
+    db_subnet = client.create_db_subnet_group(
         DBSubnetGroupName=name,
         DBSubnetGroupDescription=description,
         SubnetIds=subnet_ids
@@ -19,8 +17,8 @@ def create_db_subnet(name, description, subnet_ids: list)
 
     print("db subnet group successfully created -- creating database")
 
-def create_db(db_name, db_username, security_groups: list, db_subnetgroup)
-    db_instance = rds.create_db_instance(
+def create_db(client, db_name, db_username, security_groups: list, db_subnetgroup)
+    db_instance = client.create_db_instance(
         DBName=db_name,
         DBInstanceIdentifier=db_name,
         AllocatedStorage=20,
@@ -47,5 +45,4 @@ def create_db(db_name, db_username, security_groups: list, db_subnetgroup)
             time.sleep(60)
     
     db_host = db_info['DBInstances'][0]['Endpoint']['Address']
-    print(f"Database Endpoint: {db_host}")
-    os.environ['RDS_DB_HOST'] = db_host
+    return db_host

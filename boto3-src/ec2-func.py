@@ -11,11 +11,8 @@ git clone https://github.com/tonytheleg/adv-cloud-computing-projects.git
 bash ./adv-cloud-computing-projects/ec2-setup.sh {rds_db_host} {rds_db_passwd}
 '''
 
-
-ec2 = boto3.resource('ec2')
-
-def create_ec2_instance(key_name, subnet_id, security_groups: list):
-    instance = ec2.create_instances(
+def create_ec2_instance(client, key_name, subnet_id, security_groups: list):
+    instance = client.create_instances(
         ImageId="ami-085925f297f89fce1", # ubuntu 18.04
         InstanceType="t2.micro",
         MinCount=1,
@@ -30,3 +27,6 @@ def create_ec2_instance(key_name, subnet_id, security_groups: list):
         ],
         UserData=user_data
     )
+
+    instance_id = instance[0].id
+    return instance_id

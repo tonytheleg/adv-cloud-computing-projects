@@ -5,14 +5,11 @@ import os
 
 rds_db_host = os.environ.get('RDS_DB_HOST')
 rds_db_passwd = os.environ.get('RDS_DB_PASSWD')
-aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
-aws_secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-aws_default_region = os.environ.get('AWS_DEFAULT_REGION')
 
 user_data=f'''#!/bin/bash
 pushd /tmp
 git clone https://github.com/tonytheleg/adv-cloud-computing-projects.git
-bash ./adv-cloud-computing-projects/ec2-setup.sh {rds_db_host} {rds_db_passwd} {aws_access_key} {aws_secret_key} {aws_default_region}
+bash ./adv-cloud-computing-projects/ec2-setup.sh {rds_db_host} {rds_db_passwd}
 '''
 
 ec2 = boto3.resource('ec2')
@@ -35,3 +32,6 @@ instance = ec2.create_instances(
     ],
     UserData=user_data
 )
+
+instance_id = instance[0].id
+print(f"Instance ID: {instance_id}")
