@@ -1,56 +1,52 @@
-#!/usr/bin/env python
 
-import boto3
-elb = boto3.client('elbv2')
+import boto3, os, sys, time
+def create_lb(client, name, subnets: list, security_groups: list):
+    elb = client.create_load_balancer(
+        Name=name,
+        Subnets=subnets,
+        SecurityGroups=security_groups,
+        Scheme='internet-facing',
+        Tags=[
+            {
+                'Key': 'Name',
+                'Value': name
+            },
+        ],
+        Type='application',
+        IpAddressType='ipv4'
+    )
 
-wp_elb = elb.create_load_balancer(
-    Name='wp-lb',
-    Subnets=[
-        'subnet-0de8e0b2402bda6c5',
-        'subnet-01652e5314e269400',
-    ],
-    SecurityGroups=[
-        'sg-0b5b3d85946596ab7',
-    ],
-    Scheme='internet-facing',
-    Tags=[
-        {
-            'Key': 'Name',
-            'Value': 'wp-lb'
-        },
-    ],
-    Type='application',
-    IpAddressType='ipv4'
-)
+def create_target_group(client, name, vpc_id):
+    target_group = client.create_target_group(
+        Name=name,
+        Protocol='HTTP',
+        Port=80,
+        VpcId=vpc_id
+    )
+    return target_group['TargetGroups'][0]['TargetGroupArn']
 
-target_group = elb.create_target_group(
-    Name='web-servers',
-    Protocol='HTTP',
-    Port=80,
-    VpcId='vpc-0ed1045dd1bd534b1'
-)
+def register_targets(client, target_grp_arn, instance_id):
+    register = client.register_targets(
+        TargetGroupArn=[target_grp_arn],
+        Targets=[
+            {
+                'Id': instance_id
+            },
+        ]
+    )
 
-
-register = elb.register_targets(
-    TargetGroupArn=target_group['TargetGroups'][0]['TargetGroupArn'],
-    Targets=[
-        {
-            'Id': 'i-04309b2ba212a3656'
-        },
-    ]
-)
-
-http_listener = elb.create_listener(
-    LoadBalancerArn=wp_elb['LoadBalancers'][0]['LoadBalancerArn'],
-    Protocol='HTTP',
-    Port=80,
-    DefaultActions=[
-        {
-            'Type': 'forward',
-            'TargetGroupArn': target_group['TargetGroups'][0]['TargetGroupArn']
-        }
-    ],
-)
+def create_http_listener(client, lb_arn, target_grp_arn    
+    http_listener = client.create_listener(
+        LoadBalancerArn=lb_arn,
+        Protocol='HTTP', 
+        Port=80,
+        DefaultActions=[
+            {
+                'Type': 'forward',
+                'TargetGroupArn': target_grp_arn
+            }
+        ],
+    )
 
 https_listener = elb.create_listener(
     LoadBalancerArn=wp_elb['LoadBalancers'][0]['LoadBalancerArn'],

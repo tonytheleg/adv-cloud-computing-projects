@@ -32,4 +32,4 @@ os.environ['RDS_DB_HOST'] = rds_db
 
 # create wordpress vm
 ec2_instance = ec2_fn.create_ec2_instance(ec2, "ec2-ssh", ec2_subnet, ec2_sg) 
-
+print(f"Instance Created: {ec2_intance}")
