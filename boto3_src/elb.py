@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import boto3
+import boto3, os, sys, time
 elb = boto3.client('elbv2')
+ec2_instance_id = os.environ.get('EC2_INSTANCE_ID')
 
 wp_elb = elb.create_load_balancer(
     Name='wp-lb',
@@ -35,7 +36,7 @@ register = elb.register_targets(
     TargetGroupArn=target_group['TargetGroups'][0]['TargetGroupArn'],
     Targets=[
         {
-            'Id': 'i-04309b2ba212a3656'
+            'Id': ec2_instance_id
         },
     ]
 )
@@ -69,3 +70,18 @@ https_listener = elb.create_listener(
         }
     ],
 )
+
+LB_ARN = wp_elb['LoadBalancers'][0]['LoadBalancerArn']
+check_state = ""
+
+while check_state != "active":
+    print("LB Creating...waiting for completion")
+    status = elb.describe_load_balancers(LoadBalancerArns=[LB_ARN])
+    check_state = status['LoadBalancers'][0]['State']['Code']
+    if check_state == 'failed' or check_state == 'active_impaired':
+        print("Uh oh, something went wrong with creating the elb")
+        sys.exit(1)
+    time.sleep(30)
+
+print(f"Done.\nDNS: {wp_elb['LoadBalancers'][0]['DNSName']}\nHosted Zone: {wp_elb['LoadBalancers'][0]['CanonicalHostedZoneId']}")
+

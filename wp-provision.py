@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import boto3, os, sys
+import boto3_src.rds_func as rds_fn
+import boto3_src.ec2_func as ec2_fn
 
 # check for needed vars
 # Create DB group
@@ -22,12 +24,12 @@ ec2_sg = ['sg-0b5b3d85946596ab7']
 ec2 = boto3.resource('ec2')
 
 # create rds subnet group - returns nothing
-rds_db_subnet = create_db_subnet(rds, 'privatesub', 'subnet for db', rds_subnets) 
+rds_db_subnet = rds_fn.create_db_subnet(rds, 'privatesub', 'subnet for db', rds_subnets) 
 
 # create mysql rds - returns db name and sets as env var
-rds_db = create_db(rds, 'wordpressdb', 'wordpress', rds_sg, 'privatesub')
+rds_db = rds_fn.create_db(rds, 'wordpressdb', 'wordpress', rds_sg, 'privatesub')
 os.environ['RDS_DB_HOST'] = rds_db
 
 # create wordpress vm
-ec2_instance = create_ec2_instance(ec2, "ec2-ssh", ec2_subnet, ec2_sg) 
+ec2_instance = ec2_fn.create_ec2_instance(ec2, "ec2-ssh", ec2_subnet, ec2_sg) 
 

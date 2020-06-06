@@ -1,9 +1,6 @@
-#!/usr/bin/env python
+import os, time, sys
 
-rds = boto3.client('rds')
-rds_db_passwd = os.environ.get("RDS_DB_PASSWD")
-
-def create_db_subnet(client, name, description, subnet_ids: list)
+def create_db_subnet(client, name, description, subnet_ids: list):
     print("Creating the db subnet group")
     db_subnet = client.create_db_subnet_group(
         DBSubnetGroupName=name,
@@ -17,7 +14,8 @@ def create_db_subnet(client, name, description, subnet_ids: list)
 
     print("db subnet group successfully created -- creating database")
 
-def create_db(client, db_name, db_username, security_groups: list, db_subnetgroup)
+def create_db(client, db_name, db_username, security_groups: list, db_subnetgroup):
+    rds_db_passwd = os.environ.get('RDS_DB_PASSWD')
     db_instance = client.create_db_instance(
         DBName=db_name,
         DBInstanceIdentifier=db_name,
@@ -35,7 +33,7 @@ def create_db(client, db_name, db_username, security_groups: list, db_subnetgrou
     
     db_status = ""
     while db_status != "failed":
-        db_info = rds.describe_db_instances(DBInstanceIdentifier=db_name)
+        db_info = client.describe_db_instances(DBInstanceIdentifier=db_name)
         db_status = db_info['DBInstances'][0]['DBInstanceStatus']
         if db_status == "available":
             print("Database created")
