@@ -1,7 +1,7 @@
 import os
 
-def create_ec2_instance(client, key_name, subnet_id, security_groups: list):
-    rds_db_host = os.environ.get('RDS_DB_HOST')
+def create_ec2_instance(client, key_name, subnet_id, security_groups: list, rds_db):
+    rds_db_host = rds_db
     rds_db_passwd = os.environ.get('RDS_DB_PASSWD')
     user_data=f'''#!/bin/bash
     pushd /tmp
