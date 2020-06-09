@@ -6,11 +6,11 @@ import os, sys, time
 rds_db_host = os.environ.get('RDS_DB_HOST')
 rds_db_passwd = os.environ.get('RDS_DB_PASSWD')
 
-#user_data=f'''#!/bin/bash
-#pushd /tmp
-#git clone https://github.com/tonytheleg/adv-cloud-computing-projects.git
-#bash ./adv-cloud-computing-projects/ec2-setup.sh {rds_db_host} {rds_db_passwd}
-#'''
+user_data=f'''#!/bin/bash
+pushd /tmp
+git clone https://github.com/tonytheleg/adv-cloud-computing-projects.git
+bash ./adv-cloud-computing-projects/project-1/ec2-setup.sh {rds_db_host} {rds_db_passwd}
+'''
 
 ec2 = boto3.client('ec2')
 
@@ -30,7 +30,7 @@ instance = ec2.run_instances(
             ]
         }
     ],
-#    UserData=user_data
+    UserData=user_data
 )
 
 instance_id = instance['Instances'][0]['InstanceId']
