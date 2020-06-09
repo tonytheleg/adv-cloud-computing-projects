@@ -26,7 +26,7 @@ ec2_sg = ['sg-0b5b3d85946596ab7']
 ec2 = boto3.resource('ec2')
 
 # elb config
-elb = boto3.resource('elbv2')
+elb = boto3.client('elbv2')
 elb_subnets = ['subnet-0de8e0b2402bda6c5', 'subnet-01652e5314e269400']
 elb_sg = ['sg-0b5b3d85946596ab7']
 
@@ -41,10 +41,12 @@ rds_db = rds_fn.create_db(rds, 'wordpressdb', 'wordpress', rds_sg, 'privatesub')
 
 # create wordpress vm
 ec2_instance = ec2_fn.create_ec2_instance(ec2, "ec2-ssh", ec2_subnet, ec2_sg, rds_db) 
-print(f"Instance Created: {ec2_intance}")
+print(f"Instance Created: {ec2_instance}")
 
 # create lb
 wp_elb = elb_fn.create_lb(elb, 'wp-lb', elb_subnets, elb_sg)
+
+# CHECK THAT INSTANCE IS RUNNING BEFORE REGISTERING
 
 # create and register the target group
 target_group = elb_fn.create_target_group(elb, 'webservers', vpc_id)

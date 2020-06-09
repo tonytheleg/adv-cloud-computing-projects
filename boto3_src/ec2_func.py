@@ -24,6 +24,20 @@ def create_ec2_instance(client, key_name, subnet_id, security_groups: list, rds_
         ],
         UserData=user_data
     )
+    
+    instance_id = instance['Instances'][0]['InstanceId']
 
-    instance_id = instance[0].id
+    # sometimes the check is a little too fast
+    time.sleep(5)
+    
+    ec2_state = ""
+    while ec2_state != "running":
+        print("Checking for a running instance...")
+        status = ec2.describe_instances(InstanceIds=[instance_id])
+        ec2_state = status['Reservations'][0]['Instances'][0]['State']['Name']
+        if ec2_state == "terminated" or ec2_state == "stopped":
+            print("Uh oh, something went wrong")
+            sys.exit(1)
+        time.sleep(20)
+
     return instance_id

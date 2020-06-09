@@ -21,20 +21,12 @@ server {
         index index.php index.html index.htm index.nginx-debian.html;
         server_name myawsblog.xyz;
 
-        if ($http_x_forwarded_proto != 'https') {
-                rewrite ^ https://$host$request_uri? permanent;
-	}
-
 
         location / {
                 try_files $uri $uri/ /index.php$is_args$args;
         }
 
         location ~ \.php$ {
-                if ($http_x_forwarded_proto = 'https') {
-                    set $fe_https 'on';
-                }
-                fastcgi_param HTTPS $fe_https;
                 include snippets/fastcgi-php.conf;
                 fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
         }
