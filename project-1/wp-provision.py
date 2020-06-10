@@ -23,7 +23,7 @@ rds_sg = ['sg-025ada11b570e67df']
 # ec2 config
 ec2_subnet = "subnet-0de8e0b2402bda6c5"
 ec2_sg = ['sg-0b5b3d85946596ab7']
-ec2 = boto3.resource('ec2')
+ec2 = boto3.client('ec2')
 
 # elb config
 elb = boto3.client('elbv2')
@@ -46,7 +46,20 @@ print(f"Instance Created: {ec2_instance}")
 # create lb
 wp_elb = elb_fn.create_lb(elb, 'wp-lb', elb_subnets, elb_sg)
 
-# CHECK THAT INSTANCE IS RUNNING BEFORE REGISTERING
+# get lb state
+check_state = ""
+while check_state != "active":
+    print("LB Creating...waiting for completion")
+    check_state = elb_fn.get_db_state(elb, lb_arn)
+    if check_state == 'failed' or check_state == 'active_impaired':
+        print("Uh oh, something went wrong with creating the elb")
+        sys.exit(1)
+    time.sleep(30)
+
+# get elb config now that its done
+lb_arn = wp_elb['LoadBalancers'][0]['LoadBalancerArn']
+lb_dns = wp_elb['LoadBalancers'][0]['DNSName']
+lb_hosted_zone = wp_elb['LoadBalancers'][0]['CanonicalHostedZoneId']
 
 # create and register the target group
 target_group = elb_fn.create_target_group(elb, 'webservers', vpc_id)
@@ -56,22 +69,9 @@ elb_fn.register_targets(elb, target_group, ec2_instance)
 elb_fn.create_http_listener(elb, lb_arn, target_group)
 elb_fn.create_https_listener(elb, lb_arn, cert_arn, target_group)
 
-# get db state
-check_state = ""
-while check_state != "active":
-    print("LB Creating...waiting for completion")
-    check_state = elb_fn.get_db_state(elb, lb_arn)
-    if check_state == 'failed' or check_state == 'active_impaired':
-        print("Uh oh, something went wrong with creating the elb")
-        sys.exit(1)
-    time.sleep(30)
-# get elb config now that its done
-lb_arn = wp_elb['LoadBalancers'][0]['LoadBalancerArn']
-lb_dns = wp_elb['LoadBalancers'][0]['DNSName']
-lb_hosted_zone = wp_elb['LoadBalancers'][0]['CanonicalHostedZoneId']
 print("ELB Created") 
 
 # register the elb in dns
 add_record = r53_fn.add_host_record(r53, lb_dns, lb_hosted_zone, 'myawsblog.xyz', hosted_zone)
-print(add_record)
+print("DNS records added...")
 print("PROVISIONING COMPLETE!")
