@@ -45,6 +45,7 @@ print(f"Instance Created: {ec2_instance}")
 
 # create lb
 wp_elb = elb_fn.create_lb(elb, 'wp-lb', elb_subnets, elb_sg)
+lb_arn = wp_elb['LoadBalancers'][0]['LoadBalancerArn']
 
 # get lb state
 check_state = ""
@@ -57,7 +58,6 @@ while check_state != "active":
     time.sleep(30)
 
 # get elb config now that its done
-lb_arn = wp_elb['LoadBalancers'][0]['LoadBalancerArn']
 lb_dns = wp_elb['LoadBalancers'][0]['DNSName']
 lb_hosted_zone = wp_elb['LoadBalancers'][0]['CanonicalHostedZoneId']
 

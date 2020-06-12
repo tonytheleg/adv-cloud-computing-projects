@@ -18,6 +18,7 @@ def create_ec2_instance(client, key_name, subnet_id, security_groups: list, rds_
         NetworkInterfaces=[
             {
                 'DeviceIndex': 0,
+                'AssociatePublicIpAddress': True,
                 'SubnetId': subnet_id,
                 'Groups': security_groups
             }
