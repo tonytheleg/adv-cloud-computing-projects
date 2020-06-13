@@ -19,7 +19,7 @@ db_subnet = rds.create_db_subnet_group(
 
 if db_subnet['DBSubnetGroup']['SubnetGroupStatus'] != 'Complete':
     print("db subnet group failed to create -- aborting")
-    os.exit(1)
+    sys.exit(1)
 
 print("db subnet group successfully created -- creating database")
 db_instance = rds.create_db_instance(

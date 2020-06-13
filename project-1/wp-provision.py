@@ -62,7 +62,7 @@ lb_dns = wp_elb['LoadBalancers'][0]['DNSName']
 lb_hosted_zone = wp_elb['LoadBalancers'][0]['CanonicalHostedZoneId']
 
 # create and register the target group
-target_group = elb_fn.create_target_group(elb, 'webservers', vpc_id)
+target_group = elb_fn.create_target_group(elb, 'web-servers', vpc_id)
 elb_fn.register_targets(elb, target_group, ec2_instance)
 
 # create the listeners
