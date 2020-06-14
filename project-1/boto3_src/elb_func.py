@@ -1,6 +1,7 @@
 import boto3, os, sys, time
 
 def create_lb(client, name, subnets: list, security_groups: list):
+    print("Creating ElasticLoadBalancer...")
     elb = client.create_load_balancer(
         Name=name,
         Subnets=subnets,
@@ -18,6 +19,7 @@ def create_lb(client, name, subnets: list, security_groups: list):
     return elb
 
 def create_target_group(client, name, vpc_id):
+    print("Creating target group...")
     target_group = client.create_target_group(
         Name=name,
         Protocol='HTTP',
@@ -27,6 +29,7 @@ def create_target_group(client, name, vpc_id):
     return target_group['TargetGroups'][0]['TargetGroupArn']
 
 def register_targets(client, target_grp_arn, instance_id):
+    print("Registering targets to target group..."
     client.register_targets(
         TargetGroupArn=target_grp_arn,
         Targets=[
@@ -37,6 +40,7 @@ def register_targets(client, target_grp_arn, instance_id):
     )
 
 def create_http_listener(client, lb_arn, target_grp_arn):  
+    print("Creating HTTP listener...")
     client.create_listener(
         LoadBalancerArn=lb_arn,
         Protocol='HTTP', 
@@ -49,6 +53,7 @@ def create_http_listener(client, lb_arn, target_grp_arn):
         ],
     )
 def create_https_listener(client, lb_arn, cert_arn, target_grp_arn):
+    print("Creating HTTPS listener...")
     client.create_listener(
         LoadBalancerArn=lb_arn,
         Protocol='HTTPS',

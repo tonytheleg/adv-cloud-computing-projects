@@ -3,6 +3,7 @@
 import boto3, os
 
 def add_host_record(client, lb_dns, lb_hosted_zone, fqdn, hosted_zone):
+    print("Registering ELB in Route53")
     add_record = client.change_resource_record_sets(
         ChangeBatch={
           'Changes': [

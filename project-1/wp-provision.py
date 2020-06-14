@@ -38,6 +38,8 @@ rds_db_subnet = rds_fn.create_db_subnet(rds, 'privatesub', 'subnet for db', rds_
 
 # create mysql rds - returns db name and sets as env var
 rds_db = rds_fn.create_db(rds, 'wordpressdb', 'wordpress', rds_sg, 'privatesub')
+print("Database Created")
+print(f"Database Host: {rds_db}")
 
 # create wordpress vm
 ec2_instance = ec2_fn.create_ec2_instance(ec2, "ec2-ssh", ec2_subnet, ec2_sg, rds_db) 
@@ -69,9 +71,9 @@ elb_fn.register_targets(elb, target_group, ec2_instance)
 elb_fn.create_http_listener(elb, lb_arn, target_group)
 elb_fn.create_https_listener(elb, lb_arn, cert_arn, target_group)
 
-print("ELB Created") 
+print("ELB created and configured")
 
 # register the elb in dns
 add_record = r53_fn.add_host_record(r53, lb_dns, lb_hosted_zone, 'myawsblog.xyz', hosted_zone)
-print("DNS records added...")
+print(f"DNS records added...\n\n")
 print("PROVISIONING COMPLETE!")
