@@ -29,7 +29,7 @@ def create_target_group(client, name, vpc_id):
     return target_group['TargetGroups'][0]['TargetGroupArn']
 
 def register_targets(client, target_grp_arn, instance_id):
-    print("Registering targets to target group..."
+    print("Registering targets to target group...")
     client.register_targets(
         TargetGroupArn=target_grp_arn,
         Targets=[
