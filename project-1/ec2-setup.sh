@@ -50,6 +50,7 @@ server {
                 deny all;
         }
 }
+EOF
 
 ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/
 rm /etc/nginx/sites-available/default
