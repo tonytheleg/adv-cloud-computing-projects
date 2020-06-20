@@ -1,0 +1,31 @@
+server {
+
+        server_name YOUR-SITE www.YOUR-SITE;
+
+        location / {
+        	include proxy_params;
+	        proxy_pass http://unix:/home/YOU-USERNAME/personal-site/mysite.sock;
+        }
+
+    # The below were generated dynamically by Certbot for https
+    listen [::]:443 ssl ipv6only=on;
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/YOUR-SITE/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/YOUR-SITE/privkey.pem; 
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+}
+
+server {
+    if ($host = YOUR-SITE) {
+        return 301 https://$host$request_uri;
+    } 
+
+
+        listen 80;
+        listen [::]:80;
+
+        server_name YOU-SITE www.YOUR-SITE;
+    return 404;
+}
