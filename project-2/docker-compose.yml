@@ -1,25 +1,26 @@
 version: '3.7'
 services:
-    app01:
+    mysite01:
         shm_size: '1000000000'
         build:
-            context: ./app
+            context: ./mysite/app
         tty: true
         volumes:
-            - './app/src:/home/ubuntu'
-    app02:
+            - './mysite/app/src:/home/ubuntu'
+    mysite02:
         shm_size: '1000000000'
         build:
-            context: ./app
+            context: ./mysite/app
         tty: true
         volumes:
-            - './app/src:/home/ubuntu'
+            - './mysite/app/src:/home/ubuntu'
     nginx:
-        build: ./nginx
+        build: ./mysite/nginx
         tty: true
         links:
-            - app01
-            - app02
+            - mysite01
+            - mysite02
+
         ports:
             - '80:80'
 
