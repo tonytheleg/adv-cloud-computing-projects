@@ -2,11 +2,11 @@ version: '3.7'
 services:
     mysite01:
         shm_size: '1000000000'
-        image: mysite-flask 
+        image: tonytheleg/mysite-flask 
     mysite02:
         image: mysite-flask    
     nginx:
-        image: mysite-nginx 
+        image: tonytheleg/mysite-nginx 
         links:
             - mysite01
             - mysite02
