@@ -7,5 +7,4 @@ USER ubuntu
 COPY src /home/ubuntu/
 WORKDIR /home/ubuntu/
 EXPOSE 8080
-# adding a comment to trigger a jenkins build
 CMD ["gunicorn", "-c", "gunicorn_config.py", "wsgi:app"]
