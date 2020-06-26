@@ -2,21 +2,11 @@ version: '3.7'
 services:
     mysite01:
         shm_size: '1000000000'
-        build:
-            context: ./mysite/app
-        tty: true
-        volumes:
-            - './mysite/app/src:/home/ubuntu'
+        image: tonytheleg/mysite-flask 
     mysite02:
-        shm_size: '1000000000'
-        build:
-            context: ./mysite/app
-        tty: true
-        volumes:
-            - './mysite/app/src:/home/ubuntu'
+        image: mysite-flask    
     nginx:
-        build: ./mysite/nginx
-        tty: true
+        image: tonytheleg/mysite-nginx 
         links:
             - mysite01
             - mysite02
