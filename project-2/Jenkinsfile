@@ -1,0 +1,36 @@
+node {
+   stage('Preparation') { 
+      // Get code from a GitHub repository
+      git 'https://github.com/tonytheleg/adv-cloud-computing-projects'
+    }
+   stage('Test') {
+      sh label: 'run-unittests', script: '''
+      python3 -m venv .env
+      source .env/bin/activate
+      pushd project-2/mysite/app/src
+      pip3 install -r requirements.txt
+      python3 -m unittest -v test_mysite.py
+      deactivate'''
+    }
+   stage('Build and Push Flask') {
+      // Build the flask image
+      flask = docker.build("tonytheleg/mysite-flask", "-f project-2/mysite/app/Dockerfile project-2/mysite/app/")
+      // Push the image to Docker Hub, both versioned and latest
+      docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_credentials') {
+        flask.push("v1.${env.BUILD_NUMBER}")  
+        flask.push("latest")
+      }
+    }
+   stage('Build and Push Nginx') {
+      // Build the nginx image
+      nginx = docker.build("tonytheleg/mysite-nginx", "-f project-2/mysite/nginx/Dockerfile project-2/mysite/nginx")
+      docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_credentials') {    
+        // Push the image to Docker Hub, both versioned and latest
+        nginx.push("v1.${env.BUILD_NUMBER}")  
+        nginx.push("latest")
+      } 
+    }
+    stage('Deploy') {
+      sh label: '', script: '/usr/local/bin/docker-compose -f project-2/docker-compose.yml -H tcp://192.168.122.150:2376 up -d --force-recreate'
+    }
+}
